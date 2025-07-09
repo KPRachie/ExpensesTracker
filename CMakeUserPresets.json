@@ -1,0 +1,14 @@
+{
+  "version": 4,
+  "configurePresets": [
+    {
+      "name": "windows-msvc-local-debug",
+      "displayName": "Windows MSVC Local Debug",
+      "inherits": "windows-msvc-debug",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "C:/kp_rachie/lib/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_INSTALLED_PATH": "C:/kp_rachie/lib/vcpkg/installed/x64-windows"
+      }
+    }
+  ]
+}
