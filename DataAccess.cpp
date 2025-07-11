@@ -1,31 +1,29 @@
 #include "DataAccess.hpp"
 
 namespace expenses_tracker::data_access {
-	std::vector<expense_t> get_expenses(int64_t tg_id, int64_t cat_id) {
+	std::vector<expense_t> get_expenses(int64_t tg_id, std::vector<int64_t> cat_ids) {
 		std::vector<expense_t> expenses;
 
 		try {
 			SQLite::Database db("databases/expenses.db", SQLite::OPEN_READWRITE);
 
-			SQLite::Statement select(db, "SELECT *  FROM expenses WHERE tg_id = ?, cat_id = ?");
-			select.bind(1, tg_id);
-			select.bind(2, cat_id);
+			for (auto& cat_id : cat_ids) {
+				SQLite::Statement select(db, "SELECT *  FROM expenses WHERE tg_id = ? AND cat_id = ?");
+				select.bind(1, tg_id);
+				select.bind(2, cat_id);
 
-			while (select.executeStep()) {
-				int64_t id = select.getColumn(1);
-				int64_t tg_id = select.getColumn(2);
-				int64_t cat_id = select.getColumn(3);
-				int64_t cost = select.getColumn(4);
-				std::string comment = select.getColumn(5);
-				expense_t expense;
-				expense.id = id;
-				expense.tg_id = tg_id;
-				expense.cat_id = cat_id;
-				expense.cost = cost;
-				expense.comment = comment;
-				expenses.push_back(expense);
-
-				std::cout << "ID: " << cat_id << ", cost: " << cost << std::endl;
+				while (select.executeStep()) {
+					int64_t id = select.getColumn(0);
+					int64_t cost = select.getColumn(3);
+					std::string comment = select.getColumn(4);
+					expense_t expense;
+					expense.id = id;
+					expense.tg_id = tg_id;
+					expense.cat_id = cat_id;
+					expense.cost = cost;
+					expense.comment = comment;
+					expenses.push_back(expense);
+				}
 			}
 
 		} catch (const SQLite::Exception& e) {
@@ -58,11 +56,7 @@ namespace expenses_tracker::data_access {
 
 			SQLite::Statement query(db, "SELECT 1 FROM users WHERE tg_id = ? LIMIT 1");
 			query.bind(1, tg_id);
-			if (query.executeStep()) {
-				return true;
-			} else {
-				return false;
-			}
+			return query.executeStep();
 
 		} catch (const SQLite::Exception& e) {
 			std::cerr << "SQLite error: " << e.what() << std::endl;
@@ -98,17 +92,16 @@ namespace expenses_tracker::data_access {
 		}
 	}
 
-	void add_expense(int64_t id, int64_t tg_id, int64_t cat_id, int64_t cost, std::string comment) {
+	void add_expense(int64_t tg_id, int64_t cat_id, int64_t cost, std::string comment) {
 		try {
 			SQLite::Database db("databases/expenses.db", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
 			db.exec("CREATE TABLE IF NOT EXISTS expenses (id INTEGER PRIMARY KEY, tg_id INTEGER, cat_id INTEGER, cost INTEGER, comment TEXT)");
 
-			SQLite::Statement query(db, "INSERT INTO expenses (id, tg_id, cat_id, cost, comment) VALUES (?, ?, ?, ?, ?)");
-			query.bind(1, id);
-			query.bind(2, tg_id);
-			query.bind(3, cat_id);
-			query.bind(4, cost);
-			query.bind(5, comment);
+			SQLite::Statement query(db, "INSERT INTO expenses (tg_id, cat_id, cost, comment) VALUES (?, ?, ?, ?)");
+			query.bind(1, tg_id);
+			query.bind(2, cat_id);
+			query.bind(3, cost);
+			query.bind(4, comment);
 			query.exec();
 
 		} catch (const SQLite::Exception& e) {
@@ -116,8 +109,17 @@ namespace expenses_tracker::data_access {
 		}
 	}
 
-	//TO DO
-	std::map<int64_t, std::string> get_categories(std::vector<int64_t> cat_id) {
-		return std::map<int64_t, std::string>();
+	std::map<int64_t, std::string> get_categories(std::vector<int64_t> cat_ids) {
+		std::map<int64_t, std::string> categories;
+
+		for (auto& cat_id : cat_ids) {
+			SQLite::Database db("databases/categories.db", SQLite::OPEN_READWRITE);
+
+			SQLite::Statement query(db, "SELECT category FROM categories WHERE cat_id= ? LIMIT 1");
+			query.bind(1, cat_id);
+			query.executeStep();
+			categories[cat_id] = query.getColumn(0).getString();
+		}
+		return categories;
 	}
 }
