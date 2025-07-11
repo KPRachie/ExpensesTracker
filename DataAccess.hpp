@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <set>
 
 //TG bot
 #include <tgbot/tgbot.h>
@@ -24,7 +25,7 @@ namespace expenses_tracker {
 			std::string comment;
 		};
 
-		std::vector <expense_t> get_expenses(int64_t tg_id, int64_t cat_id);
+		std::vector <expense_t> get_expenses(int64_t tg_id, std::vector<int64_t> cat_ids);
 
 		void add_user(int64_t tg_id, std::string user_name);
 
@@ -34,8 +35,8 @@ namespace expenses_tracker {
 
 		bool check_category(std::string category);
 
-		void add_expense(int64_t id, int64_t tg_id, int64_t cat_id, int64_t cost, std::string comment);
+		void add_expense(int64_t tg_id, int64_t cat_id, int64_t cost, std::string comment);
 
-		std::map <int64_t, std::string> get_categories(std::vector <int64_t> cat_id);
+		std::map <int64_t, std::string> get_categories(std::vector<int64_t> cat_ids);
 	}
 }
