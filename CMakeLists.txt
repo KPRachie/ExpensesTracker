@@ -22,9 +22,8 @@ find_package(SQLiteCpp REQUIRED)
 
 add_executable (${PROJECT_NAME}
 	"main.cpp"
-    "DataAccess.cpp"
-    "UserLogic.cpp"
-)
+    
+   "src/bot.cpp" "src/commands/command.cpp" "src/commands/start.cpp" "src/commands/help.cpp" "src/commands/get_data.cpp" "src/commands/add_new_category.cpp" "src/commands/add_new_expense.cpp" )
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
     src
