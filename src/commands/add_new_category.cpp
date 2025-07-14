@@ -6,9 +6,13 @@
 AddNewCategory::AddNewCategory(TgBot::Bot& bot) : ICommand(bot) {}
 
 void AddNewCategory::exec(TgBot::Message::Ptr& message) {
+	m_received_first_message = false;
 	m_bot.getApi().sendMessage(message->chat->id, "Enter the category name:");
-	m_bot.getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
-		add_category(message->text.c_str());
+	m_bot.getEvents().onAnyMessage([&](TgBot::Message::Ptr message) {
+		if (!m_received_first_message) {
+			m_received_first_message = true;
+			add_category(message->text.c_str());
+		}
 	});
 }
 

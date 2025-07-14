@@ -13,6 +13,8 @@ public:
 private:
 	void add_expense(int64_t tg_id, int64_t cat_id, int64_t cost, std::string comment);
 
+	bool m_received_first_message;
+
 };
 
 struct expense_t {
