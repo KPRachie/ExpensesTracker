@@ -12,8 +12,8 @@ public:
 
 private:
 	bool check_category(std::string category);
-	void add_category(std::string category);
+	void add_category(std::vector<std::string> categories);
+	std::vector <std::string> parse(std::string message);
 
 	bool m_received_first_message;
-
 };
