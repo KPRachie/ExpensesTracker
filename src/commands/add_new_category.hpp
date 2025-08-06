@@ -7,14 +7,12 @@
 
 class AddNewCategory : public ICommand {
 public:
-	AddNewCategory(TgBot::Bot& bot);
+	explicit AddNewCategory(TgBot::Bot& bot);
 
-	void exec(TgBot::Message::Ptr& message) override;
+	void exec(TgBot::Message::Ptr message) override;
 
 private:
-	bool check_category(std::string category);
-	void add_category(std::vector<std::string> categories);
+	bool check_category(std::string_view category);
+	void add_category(const std::vector<std::string>& categories);
 	std::vector <std::string> parse(std::string message);
-
-	bool m_received_first_message;
 };

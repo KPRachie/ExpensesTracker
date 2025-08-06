@@ -14,15 +14,13 @@ struct expense_t {
 
 class AddNewExpense : public ICommand {
 public:
-	AddNewExpense(TgBot::Bot& bot);
+	explicit AddNewExpense(TgBot::Bot& bot);
 
-	void exec(TgBot::Message::Ptr& message) override;
+	void exec(TgBot::Message::Ptr message) override;
 
 private:
-	void add_expense(std::vector<expense_t> expenses);
+	void add_expense(const std::vector<expense_t>& expenses);
 	std::vector<expense_t> parse(int64_t tg_id, std::string message);
-	int64_t get_category_id(std::string category);
-
-	bool m_received_first_message;
+	int64_t get_category_id(std::string_view category);
 };
 

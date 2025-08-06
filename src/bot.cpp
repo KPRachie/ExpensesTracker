@@ -1,17 +1,35 @@
 #include "bot.hpp"
 
+//STL
 #include <string>
+
+//lib
+#include "lib/safe_map.hpp"
+
+//global
+#include "global.hpp"
 
 Bot::Bot() : TgBot::Bot(std::getenv("ExpensesTrackerToken")) {}
 
-Bot::~Bot() {}
+Bot::~Bot() = default;
 
 void Bot::run() {
 	TgBot::TgLongPoll longPoll(*this);
 
+	getEvents().onAnyMessage([&](TgBot::Message::Ptr message) {
+		if (users_states.contains(message->chat->id)) {
+			auto& elem = users_states.get(message->chat->id);
+			elem.text = message->text;
+			elem.flag.store(true, std::memory_order_release);
+			elem.flag.notify_all();
+		}
+	});
+
 	for (auto& [name, ptr] : commands) {
-		getEvents().onCommand(name, [&](TgBot::Message::Ptr message) {
-			ptr->exec(message);
+		getEvents().onCommand(name, [ptr](TgBot::Message::Ptr message) {
+			std::thread([ptr, message] {
+				ptr->exec(message);
+			}).detach();
 		});
 	}
 
