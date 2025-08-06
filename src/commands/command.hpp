@@ -7,13 +7,14 @@
 
 class ICommand {
 public:
-	ICommand(TgBot::Bot& bot);
+	explicit ICommand(TgBot::Bot& bot);
 	virtual ~ICommand();
 
-	virtual void exec(TgBot::Message::Ptr& message) = 0;
+	virtual void exec(TgBot::Message::Ptr message) = 0;
 
 protected:
 	TgBot::Bot& m_bot;
+	//const bool m_wants_reply;
 };
 
 using CommandPtr = std::shared_ptr<ICommand>;

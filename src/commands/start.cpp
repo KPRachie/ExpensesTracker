@@ -5,7 +5,7 @@
 
 Start::Start(TgBot::Bot& bot) : ICommand(bot){}
 
-void Start::exec(TgBot::Message::Ptr& message) {
+void Start::exec(TgBot::Message::Ptr message) {
 	m_bot.getApi().sendMessage(message->chat->id, "This is an expense management bot. To see available commands, use the /help command.");
 	add_user(message->chat->id, message->chat->firstName);
 }

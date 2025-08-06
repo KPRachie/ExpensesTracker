@@ -6,6 +6,6 @@ class Help : public ICommand {
 public:
 	Help(TgBot::Bot& bot);
 
-	void exec(TgBot::Message::Ptr& message) override;
+	void exec(TgBot::Message::Ptr message) override;
 
 };

@@ -8,7 +8,7 @@ class Start : public ICommand {
 public:
 	Start(TgBot::Bot& bot);
 
-	void exec(TgBot::Message::Ptr& message) override;
+	void exec(TgBot::Message::Ptr message) override;
 
 private:
 	bool check_user(int64_t tg_id);
