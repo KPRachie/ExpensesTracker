@@ -36,22 +36,6 @@ std::vector<std::string> GetData::parse(std::string message) {
 	return lib::split(message);
 }
 
-std::unordered_map<std::string, int64_t> GetData::get_cat_ids(const std::vector<std::string>& categories) {
-	std::unordered_map<std::string, int64_t> cat_ids;
-
-	for (auto& category : categories) {
-		if (cat_ids[category] == 0) {
-			SQLite::Database db("databases/categories.db", SQLite::OPEN_READWRITE);
-			SQLite::Statement query(db, "SELECT cat_id FROM categories WHERE category = ? LIMIT 1");
-			query.bind(1, category);
-			query.executeStep();
-			cat_ids[category] = query.getColumn(0);
-		}
-	}
-
-	return cat_ids;
-}
-
 std::unordered_map<int64_t, std::string> GetData::get_cat_names(const std::vector<int64_t>& cat_ids) {
 	std::unordered_map<int64_t, std::string> cat_names;
 
@@ -66,6 +50,22 @@ std::unordered_map<int64_t, std::string> GetData::get_cat_names(const std::vecto
 	}
 
 	return cat_names;
+}
+
+std::unordered_map<std::string, int64_t> GetData::get_cat_ids(const std::vector<std::string>& categories) {
+	std::unordered_map<std::string, int64_t> cat_ids;
+
+	for (auto& category : categories) {
+		if (cat_ids[category] == 0) {
+			SQLite::Database db("databases/categories.db", SQLite::OPEN_READWRITE);
+			SQLite::Statement query(db, "SELECT cat_id FROM categories WHERE category = ? LIMIT 1");
+			query.bind(1, category);
+			query.executeStep();
+			cat_ids[category] = query.getColumn(0);
+		}
+	}
+
+	return cat_ids;
 }
 
 std::vector<int64_t> GetData::get_all_cat_ids(int64_t tg_id) {
@@ -84,31 +84,29 @@ std::vector<int64_t> GetData::get_all_cat_ids(int64_t tg_id) {
 
 std::unordered_map<int64_t, int64_t> GetData::process(int64_t tg_id, const std::vector<std::string>& categories) {
 	std::unordered_map<int64_t, int64_t> expenses;
+	SQLite::Database db("databases/expenses.db", SQLite::OPEN_READWRITE);
+	SQLite::Statement query(db, "SELECT SUM(cost) FROM expenses WHERE cat_id = ? AND tg_id = ?");
 
 	if (categories.empty()) {
-		std::vector<int64_t> cat_ids = std::move(get_all_cat_ids(tg_id));
+		std::vector<int64_t> cat_ids = get_all_cat_ids(tg_id);
 
 		for (auto& id : cat_ids) {
-			SQLite::Database db("databases/expenses.db", SQLite::OPEN_READWRITE);
-			SQLite::Statement query(db, "SELECT SUM(cost) FROM expenses WHERE cat_id = ? AND tg_id = ?");
 			query.bind(1, id);
 			query.bind(2, tg_id);
 			query.executeStep();
 			expenses[id] = query.getColumn(0);
+			query.reset();
 		}
+	} else {
+		std::unordered_map<std::string, int64_t> cat_ids = get_cat_ids(categories);
 
-		return expenses;
-	}
-
-	std::unordered_map<std::string, int64_t> cat_ids = std::move(get_cat_ids(categories));
-
-	for (auto& category : categories) {
-		SQLite::Database db("databases/expenses.db", SQLite::OPEN_READWRITE);
-		SQLite::Statement query(db, "SELECT SUM(cost) FROM expenses WHERE cat_id = ? AND tg_id = ?");
-		query.bind(1, cat_ids[category]);
-		query.bind(2, tg_id);
-		query.executeStep();
-		expenses[cat_ids[category]] = query.getColumn(0);
+		for (auto& category : categories) {
+			query.bind(1, cat_ids[category]);
+			query.bind(2, tg_id);
+			query.executeStep();
+			expenses[cat_ids[category]] = query.getColumn(0);
+			query.reset();
+		}
 	}
 
 	return expenses;
@@ -122,7 +120,7 @@ std::string GetData::prepare_data(std::unordered_map<int64_t, int64_t> expenses)
 		cat_ids.push_back(id);
 	}
 
-	std::unordered_map<int64_t, std::string> cat_names = std::move(get_cat_names(cat_ids));
+	std::unordered_map<int64_t, std::string> cat_names = get_cat_names(cat_ids);
 	for (auto& [id, sum] : expenses) {
 		data += cat_names[id] + ": " + std::to_string(sum) + '\n';
 	}

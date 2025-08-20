@@ -30,7 +30,7 @@ namespace lib {
 			return m_data.at(key);
 		}
 
-		bool contains(const TKey& key) {
+		bool contains(const TKey& key) const {
 			std::shared_lock lock(m_mutex);
 			return m_data.contains(key);
 		}

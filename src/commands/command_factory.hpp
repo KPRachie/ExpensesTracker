@@ -20,7 +20,7 @@ public:
 		});
 	}
 
-	std::function<CommandPtr(TgBot::Bot&)> make(const std::string& name) {
+	std::function<CommandPtr(TgBot::Bot&)> make(const std::string& name) const {
 		return m_commands.get(name);
 	}
 
