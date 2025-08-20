@@ -25,20 +25,23 @@ void Bot::run() {
 		}
 	});
 
-	for (auto& [name, ptr] : commands) {
-		getEvents().onCommand(name, [ptr](TgBot::Message::Ptr message) {
-			std::thread([ptr, message] {
-				ptr->exec(message);
-			}).detach();
-		});
-	}
-
 	while (true) {
 		std::cout << "Long poll started" << '\n';
 		longPoll.start();
 	}
 }
 
-void Bot::add_command(std::string name, CommandPtr ptr) {
-	commands.emplace(name, std::move(ptr));
+void Bot::add_command(const std::string& name) {
+	m_commands.push_back(name);
+}
+
+void Bot::register_commands() {
+	for (const auto& name : m_commands) {
+		getEvents().onCommand(name, [this, name](TgBot::Message::Ptr message) {
+			auto command = m_factory.make(name)(*this);
+			std::thread([command = std::move(command), message = std::move(message)]() mutable {
+				command->exec(message);
+			}).detach();
+		});
+	}
 }

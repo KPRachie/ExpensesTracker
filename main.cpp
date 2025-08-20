@@ -8,11 +8,12 @@
 
 int main() {
 	Bot bot;
-	bot.add_command("start", std::make_shared<Start>(bot));
-	bot.add_command("help", std::make_shared<Help>(bot));
-	bot.add_command("get_data", std::make_shared<GetData>(bot));
-	bot.add_command("add_new_category", std::make_shared<AddNewCategory>(bot));
-	bot.add_command("add_new_expense", std::make_shared<AddNewExpense>(bot));
+	bot.register_command<Start>("start");
+	bot.register_command<Help>("help");
+	bot.register_command<GetData>("get_data");
+	bot.register_command<AddNewCategory>("add_new_category");
+	bot.register_command<AddNewExpense>("add_new_expense");
+	bot.register_commands();
 	bot.run();
     return 0;
 }
