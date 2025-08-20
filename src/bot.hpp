@@ -9,6 +9,7 @@
 
 //commands
 #include "commands/command.hpp"
+#include "commands/command_factory.hpp"
 
 class Bot : public TgBot::Bot {
 public:
@@ -19,8 +20,17 @@ public:
 
 	void run();
 
-	void add_command(std::string name, CommandPtr ptr);
+	void add_command(const std::string& name);
+
+	void register_commands();
+
+	template<typename T>
+	void register_command(const std::string& name) {
+		m_factory.add<T>(name);
+		add_command(name);
+	}
 
 private:
-	std::unordered_map<std::string, CommandPtr> commands;
+	CommandFactory m_factory;
+	std::vector <std::string> m_commands;
 };

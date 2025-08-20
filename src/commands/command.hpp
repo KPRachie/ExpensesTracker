@@ -5,6 +5,8 @@
 //TG bot
 #include <tgbot/tgbot.h>
 
+//#include "SQLiteCpp/Database.h"
+
 class ICommand {
 public:
 	explicit ICommand(TgBot::Bot& bot);
@@ -14,7 +16,7 @@ public:
 
 protected:
 	TgBot::Bot& m_bot;
-	//const bool m_wants_reply;
+	//SQLite::Database& m_db;
 };
 
 using CommandPtr = std::shared_ptr<ICommand>;
