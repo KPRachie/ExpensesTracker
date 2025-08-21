@@ -24,7 +24,7 @@ void AddNewCategory::exec(TgBot::Message::Ptr message) {
 }
 
 bool AddNewCategory::check_category(std::string_view category) {
-	SQLite::Database db("databases/categories.db", SQLite::OPEN_READWRITE);
+	SQLite::Database db("expenses_tracker.db", SQLite::OPEN_READWRITE);
 	SQLite::Statement query(db, "SELECT 1 FROM categories WHERE category = ? LIMIT 1");
 
 	query.bind(1, (std::string) category);
@@ -33,7 +33,7 @@ bool AddNewCategory::check_category(std::string_view category) {
 }
 
 void AddNewCategory::add_category(const std::vector<std::string>& categories) {
-	SQLite::Database db("databases/categories.db", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+	SQLite::Database db("expenses_tracker.db", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
 
 	db.exec("CREATE TABLE IF NOT EXISTS categories (cat_id INTEGER PRIMARY KEY, category TEXT)");
 	for (auto& category : categories) {

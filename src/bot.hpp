@@ -1,14 +1,9 @@
 #pragma once
 
-//STL
-#include <unordered_map>
-#include <memory>
-
 //TG bot
 #include <tgbot/tgbot.h>
 
 //commands
-#include "commands/command.hpp"
 #include "commands/command_factory.hpp"
 
 class Bot : public TgBot::Bot {
