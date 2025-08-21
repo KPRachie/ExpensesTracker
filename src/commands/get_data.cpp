@@ -84,6 +84,7 @@ std::vector<int64_t> GetData::get_all_cat_ids(int64_t tg_id) {
 
 std::unordered_map<int64_t, int64_t> GetData::process(int64_t tg_id, const std::vector<std::string>& categories) {
 	std::unordered_map<int64_t, int64_t> expenses;
+	int64_t total = 0;
 	SQLite::Database db("expenses_tracker.db", SQLite::OPEN_READWRITE);
 	SQLite::Statement query(db, "SELECT SUM(cost) FROM expenses WHERE cat_id = ? AND tg_id = ?");
 
@@ -95,6 +96,7 @@ std::unordered_map<int64_t, int64_t> GetData::process(int64_t tg_id, const std::
 			query.bind(2, tg_id);
 			query.executeStep();
 			expenses[id] = query.getColumn(0);
+			total += expenses[id];
 			query.reset();
 		}
 	} else {
@@ -105,24 +107,30 @@ std::unordered_map<int64_t, int64_t> GetData::process(int64_t tg_id, const std::
 			query.bind(2, tg_id);
 			query.executeStep();
 			expenses[cat_ids[category]] = query.getColumn(0);
+			total += expenses[cat_ids[category]];
 			query.reset();
 		}
 	}
+	expenses[0] = total;
 
 	return expenses;
 }
 
 std::string GetData::prepare_data(std::unordered_map<int64_t, int64_t> expenses) {
 	std::vector<int64_t> cat_ids;
-	std::string data = "Here is your data:\n";
+	std::string data = "Total cost: " + std::to_string(expenses[0]) + '\n' + "Here is your data:\n";
 
 	for (const auto& id : expenses | std::views::keys) {
-		cat_ids.push_back(id);
+		if (id != 0) {
+			cat_ids.push_back(id);
+		}
 	}
 
 	std::unordered_map<int64_t, std::string> cat_names = get_cat_names(cat_ids);
 	for (auto& [id, sum] : expenses) {
-		data += cat_names[id] + ": " + std::to_string(sum) + '\n';
+		if (id != 0) {
+			data += cat_names[id] + ": " + std::to_string(sum) + " " + std::to_string((int) (((float) sum / expenses[0]) * 100)) + "% " + '\n';
+		}
 	}
 
 	return data;
