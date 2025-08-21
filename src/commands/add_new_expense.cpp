@@ -50,7 +50,7 @@ std::vector<expense_t> AddNewExpense::parse(int64_t tg_id, std::string message) 
 }
 
 int64_t AddNewExpense::get_category_id(std::string_view category) {
-	SQLite::Database db("databases/categories.db", SQLite::OPEN_READWRITE);
+	SQLite::Database db("expenses_tracker.db", SQLite::OPEN_READWRITE);
 	SQLite::Statement query(db, "SELECT cat_id FROM categories WHERE category = ? LIMIT 1");
 
 	query.bind(1, (std::string) category);
@@ -60,7 +60,7 @@ int64_t AddNewExpense::get_category_id(std::string_view category) {
 }
 
 void AddNewExpense::add_expense(const std::vector<expense_t>& expenses) {
-	SQLite::Database db("databases/expenses.db", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+	SQLite::Database db("expenses_tracker.db", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
 	db.exec("CREATE TABLE IF NOT EXISTS expenses (id INTEGER PRIMARY KEY, tg_id INTEGER, cat_id INTEGER, cost INTEGER, comment TEXT)");
 
 	for (auto& expense : expenses) {

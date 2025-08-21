@@ -3,4 +3,4 @@
 out/*
 CMakeUserPresets.json
 
-res/databases/*
+res/expenses_tracker.db
